@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { motion, useAnimation } from 'framer-motion';
-import { AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { AlertCircle, Mail } from 'lucide-react';
 
 // Game Constants
 const PADDLE_WIDTH = 100;
@@ -82,14 +82,17 @@ const RainingPoop = () => {
 };
 
 const PersonalWebsite = () => {
-  const [paddleX, setPaddleX] = useState(0);
-  const [ballPos, setBallPos] = useState({ x: 0, y: 0 });
-  const [ballVelocity, setBallVelocity] = useState({ x: BALL_SPEED, y: BALL_SPEED });
   const [bricks, setBricks] = useState([]);
   const [score, setScore] = useState(0);
-  const [gameState, setGameState] = useState('initial'); // 'initial', 'playing', 'gameOver', 'won'
+  const [gameState, setGameState] = useState('initial');
 
-  const ballControls = useAnimation();
+  const ballRef = useRef(null);
+  const paddleRef = useRef(null);
+  const containerRef = useRef(null);
+  const gameLoopRef = useRef(null);
+  const ballPosRef = useRef({ x: 0, y: 0 });
+  const ballVelocityRef = useRef({ x: BALL_SPEED, y: BALL_SPEED });
+  const paddleXRef = useRef(0);
 
   const initializeBricks = useCallback(() => {
     const newBricks = [];
@@ -115,71 +118,118 @@ const PersonalWebsite = () => {
   const updateBallPosition = useCallback(() => {
     if (gameState !== 'playing') return;
 
-    setBallPos((prev) => {
-      let newX = prev.x + ballVelocity.x;
-      let newY = prev.y + ballVelocity.y;
-      let newVelocityX = ballVelocity.x;
-      let newVelocityY = ballVelocity.y;
+    let { x, y } = ballPosRef.current;
+    let { x: vx, y: vy } = ballVelocityRef.current;
 
-      // Wall collisions
-      if (newX <= 0 || newX >= window.innerWidth - BALL_SIZE) newVelocityX *= -1;
-      if (newY <= 0) newVelocityY *= -1;
+    x += vx;
+    y += vy;
 
-      // Paddle collision
-      if (
-        newY >= window.innerHeight - BALL_SIZE - 10 &&
-        newX > paddleX &&
-        newX < paddleX + PADDLE_WIDTH
-      ) {
-        newVelocityY *= -1;
-        // Adjust x velocity based on where ball hits the paddle
-        const hitPosition = (newX - paddleX) / PADDLE_WIDTH;
-        newVelocityX = BALL_SPEED * (hitPosition - 0.5) * 2;
-      }
+    // Wall collisions
+    if (x <= 0 || x >= window.innerWidth - BALL_SIZE) vx *= -1;
+    if (y <= 0) vy *= -1;
 
-      // Brick collisions
-      bricks.forEach((brick, index) => {
+    // Paddle collision
+    if (
+      y >= window.innerHeight - BALL_SIZE - 10 &&
+      x > paddleXRef.current &&
+      x < paddleXRef.current + PADDLE_WIDTH
+    ) {
+      vy *= -1;
+      // Adjust x velocity based on where ball hits the paddle
+      const hitPosition = (x - paddleXRef.current) / PADDLE_WIDTH;
+      vx = BALL_SPEED * (hitPosition - 0.5) * 2;
+    }
+
+    // Brick collisions
+    setBricks((prevBricks) => {
+      let newBricks = [...prevBricks];
+      let collision = false;
+
+      for (let i = 0; i < newBricks.length; i++) {
+        const brick = newBricks[i];
         if (
-          newX < brick.x + BRICK_WIDTH &&
-          newX + BALL_SIZE > brick.x &&
-          newY < brick.y + BRICK_HEIGHT &&
-          newY + BALL_SIZE > brick.y
+          x < brick.x + BRICK_WIDTH &&
+          x + BALL_SIZE > brick.x &&
+          y < brick.y + BRICK_HEIGHT &&
+          y + BALL_SIZE > brick.y
         ) {
-          newVelocityY *= -1;
-          setBricks((prev) => prev.filter((_, i) => i !== index));
+          vy *= -1;
+          newBricks.splice(i, 1);
           setScore((prev) => prev + 10);
+          collision = true;
+          break;
         }
-      });
-
-      // Game over condition
-      if (newY >= window.innerHeight - BALL_SIZE) {
-        setGameState('gameOver');
       }
 
-      // Win condition
-      if (bricks.length === 0) {
-        setGameState('won');
+      if (collision) {
+        return newBricks;
       }
-
-      setBallVelocity({ x: newVelocityX, y: newVelocityY });
-      return { x: newX, y: newY };
+      return prevBricks;
     });
-  }, [ballVelocity, paddleX, bricks, gameState]);
+
+    // Game over condition
+    if (y >= window.innerHeight - BALL_SIZE) {
+      setGameState('gameOver');
+    }
+
+    // Win condition
+    if (bricks.length === 0) {
+      setGameState('won');
+    }
+
+    ballPosRef.current = { x, y };
+    ballVelocityRef.current = { x: vx, y: vy };
+
+    // Update ball position in the DOM
+    if (ballRef.current) {
+      ballRef.current.style.transform = `translate(${x}px, ${y}px)`;
+    }
+  }, [gameState, bricks.length]);
 
   useEffect(() => {
-    const gameLoop = setInterval(updateBallPosition, 16);
-    return () => clearInterval(gameLoop);
-  }, [updateBallPosition]);
+    const gameLoop = () => {
+      updateBallPosition();
+      gameLoopRef.current = requestAnimationFrame(gameLoop);
+    };
+
+    if (gameState === 'playing') {
+      gameLoopRef.current = requestAnimationFrame(gameLoop);
+    }
+
+    return () => {
+      if (gameLoopRef.current) {
+        cancelAnimationFrame(gameLoopRef.current);
+      }
+    };
+  }, [gameState, updateBallPosition]);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (gameState === 'playing') {
         const newX = e.clientX - PADDLE_WIDTH / 2;
-        setPaddleX(Math.max(0, Math.min(newX, window.innerWidth - PADDLE_WIDTH)));
+        paddleXRef.current = Math.max(0, Math.min(newX, window.innerWidth - PADDLE_WIDTH));
+        if (paddleRef.current) {
+          paddleRef.current.style.left = `${paddleXRef.current}px`;
+        }
       }
     };
+
+    const handleTouchMove = (e) => {
+      if (gameState === 'playing' && e.touches[0]) {
+        const newX = e.touches[0].clientX - PADDLE_WIDTH / 2;
+        paddleXRef.current = Math.max(0, Math.min(newX, window.innerWidth - PADDLE_WIDTH));
+        if (paddleRef.current) {
+          paddleRef.current.style.left = `${paddleXRef.current}px`;
+        }
+      }
+    };
+
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener('touchmove', handleTouchMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchmove', handleTouchMove);
+    };
   }, [gameState]);
 
   const startGame = () => {
@@ -187,13 +237,27 @@ const PersonalWebsite = () => {
       setGameState('playing');
       setScore(0);
       initializeBricks();
-      setBallPos({ x: window.innerWidth / 2, y: window.innerHeight - 100 });
-      setBallVelocity({ x: BALL_SPEED, y: -BALL_SPEED });
+      
+      // Set initial ball position
+      ballPosRef.current = { x: window.innerWidth / 2, y: window.innerHeight - 100 };
+      
+      // Randomize initial ball direction, but always upwards
+      const angle = (Math.random() - 0.5) * Math.PI / 2; // Random angle between -45 and 45 degrees
+      ballVelocityRef.current = {
+        x: BALL_SPEED * Math.sin(angle),
+        y: -BALL_SPEED * Math.cos(angle) // Negative to ensure upward movement
+      };
+      
+      // Update ball position in the DOM
+      if (ballRef.current) {
+        ballRef.current.style.transform = `translate(${ballPosRef.current.x}px, ${ballPosRef.current.y}px)`;
+      }
     }
   };
 
   return (
     <div 
+      ref={containerRef}
       className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 flex flex-col items-center justify-center p-4 text-white overflow-hidden"
       onClick={startGame}
     >
@@ -204,26 +268,25 @@ const PersonalWebsite = () => {
         ))}
         {gameState !== 'initial' && (
           <>
-            <motion.div
+            <div
+              ref={paddleRef}
               className="absolute bg-white rounded-full"
               style={{
-                left: paddleX,
+                left: paddleXRef.current,
                 bottom: 10,
                 width: PADDLE_WIDTH,
                 height: 6,
                 opacity: 0.8,
               }}
             />
-            <motion.div
+            <div
+              ref={ballRef}
               className="absolute bg-white rounded-full"
               style={{
-                left: ballPos.x,
-                top: ballPos.y,
                 width: BALL_SIZE,
                 height: BALL_SIZE,
                 opacity: 0.8,
               }}
-              animate={ballControls}
             />
           </>
         )}
@@ -246,15 +309,20 @@ const PersonalWebsite = () => {
         <h1 className="text-5xl font-bold">Aditya Alif Nugraha</h1>
         <h2 className="text-2xl">Senior Software Engineer with 5+ years of experience</h2>
         
-        <motion.a
-          href="mailto:adityaalifnugraha@gmail.com"
-          className="inline-block px-6 py-3 bg-white text-purple-600 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-colors duration-300"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          Connect with me
-        </motion.a>
+        <div className="flex flex-col items-center space-y-4">
+          <motion.a
+            href="mailto:adityaalifnugraha@gmail.com"
+            className="inline-flex items-center px-6 py-3 bg-white text-purple-600 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-colors duration-300"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Mail className="mr-2" /> Connect with me
+          </motion.a>
+          <p className="text-white text-sm">
+            Email: adityaalifnugraha@gmail.com
+          </p>
+        </div>
 
         <motion.div 
           className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 flex items-start space-x-3 mt-8"
@@ -265,9 +333,9 @@ const PersonalWebsite = () => {
           <AlertCircle className="text-white flex-shrink-0 mt-1" />
           <p className="text-left text-sm">
             Site is under construction. In the meantime, please enjoy the Brick Breaker game! 
-            {gameState === 'initial' ? " Click anywhere to start." : ""}
-            {gameState === 'gameOver' ? " Click anywhere to start again." : ""}
-            {gameState === 'won' ? " Congratulations! Click anywhere to play again." : ""}
+            {gameState === 'initial' ? " Click or tap anywhere to start." : ""}
+            {gameState === 'gameOver' ? " Click or tap anywhere to start again." : ""}
+            {gameState === 'won' ? " Congratulations! Click or tap anywhere to play again." : ""}
           </p>
         </motion.div>
       </motion.div>
