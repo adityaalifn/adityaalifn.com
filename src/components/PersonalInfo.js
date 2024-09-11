@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Github, Twitter, FileText, AlertCircle } from 'lucide-react';
+import { Mail, Github, Twitter, Linkedin, AlertCircle } from 'lucide-react';
 
 const PersonalInfo = () => (
   <motion.div
@@ -15,16 +15,18 @@ const PersonalInfo = () => (
     <div className="flex flex-col items-center space-y-4">
       <div className="flex items-center space-x-4">
         <motion.a
-          href="mailto:adityaalifnugraha@gmail.com"
+          href="https://www.linkedin.com/in/adityaalifn/"
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center px-6 py-3 bg-white text-purple-600 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-colors duration-300"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={(e) => e.stopPropagation()}
         >
-          <Mail className="mr-2" /> Connect with me
+          <Linkedin className="mr-2" /> Connect with me
         </motion.a>
         <motion.a
-          href="https://github.com/yourusername"
+          href="https://github.com/adityaalifn"
           target="_blank"
           rel="noopener noreferrer"
           className="p-2 bg-white text-purple-600 rounded-full hover:bg-opacity-90 transition-colors duration-300"
@@ -35,7 +37,7 @@ const PersonalInfo = () => (
           <Github size={24} />
         </motion.a>
         <motion.a
-          href="https://twitter.com/yourusername"
+          href="https://twitter.com/adityaalifn"
           target="_blank"
           rel="noopener noreferrer"
           className="p-2 bg-white text-purple-600 rounded-full hover:bg-opacity-90 transition-colors duration-300"
@@ -46,15 +48,13 @@ const PersonalInfo = () => (
           <Twitter size={24} />
         </motion.a>
         <motion.a
-          href="/path-to-your-resume.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="mailto:adityaalifnugraha@gmail.com"
           className="p-2 bg-white text-purple-600 rounded-full hover:bg-opacity-90 transition-colors duration-300"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={(e) => e.stopPropagation()}
         >
-          <FileText size={24} />
+          <Mail size={24} />
         </motion.a>
       </div>
       <p className="text-white text-sm">
