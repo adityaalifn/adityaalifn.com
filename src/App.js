@@ -167,18 +167,6 @@ const App = () => {
 
           {gameState === 'won' && <Confetti />}
           {gameState === 'gameOver' && <RainingPoop />}
-
-          {/* Game instructions */}
-          {gameState !== 'playing' && (
-            <div className="mt-4 text-center z-10">
-              <p className="text-xl mb-2">
-                Click anywhere to {gameState === 'initial' ? 'start' : 'restart'}
-              </p>
-              <p className="text-sm opacity-75">
-                (Use mouse or touch to control the paddle)
-              </p>
-            </div>
-          )}
         </div>
 
         {showScrollIndicator && (

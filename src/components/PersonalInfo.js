@@ -71,7 +71,7 @@ const PersonalInfo = () => (
       <AlertCircle className="text-white flex-shrink-0 mt-1" />
       <p className="text-left text-sm">
         Site is under construction. In the meantime, please enjoy the Brick Breaker game! 
-        Click or tap anywhere to start, restart, or play again.
+        Click or tap anywhere to start.
       </p>
     </motion.div>
   </motion.div>
