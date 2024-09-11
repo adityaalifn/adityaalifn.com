@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
 import Brick from './components/Brick';
 import Confetti from './components/Confetti';
 import RainingPoop from './components/RainingPoop';
 import GameInfo from './components/GameInfo';
 import PersonalInfo from './components/PersonalInfo';
+import AboutMe from './components/AboutMe';  // Import the new AboutMe component
 import { PADDLE_WIDTH, BALL_SIZE, BALL_SPEED } from './utils/gameConstants';
 import { initializeBricks, updateBallPosition } from './utils/gameLogic';
 
@@ -12,6 +14,7 @@ const App = () => {
   const [bricks, setBricks] = useState([]);
   const [score, setScore] = useState(0);
   const [gameState, setGameState] = useState('initial');
+  const [showScrollIndicator, setShowScrollIndicator] = useState(true);
 
   const ballRef = useRef(null);
   const paddleRef = useRef(null);
@@ -59,15 +62,26 @@ const App = () => {
       }
     };
 
+    const handleScroll = () => {
+      if (window.scrollY > 100) {
+        setShowScrollIndicator(false);
+      } else {
+        setShowScrollIndicator(true);
+      }
+    };
+
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('touchmove', handleTouchMove);
+    window.addEventListener('scroll', handleScroll);
+
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, [gameState]);
 
-  const startGame = () => {
+  const startGame = useCallback(() => {
     if (gameState === 'initial' || gameState === 'gameOver' || gameState === 'won') {
       setGameState('playing');
       setScore(0);
@@ -85,49 +99,71 @@ const App = () => {
         ballRef.current.style.transform = `translate(${ballPosRef.current.x}px, ${ballPosRef.current.y}px)`;
       }
     }
-  };
+  }, [gameState]);
 
   return (
-    <div 
-      ref={containerRef}
-      className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 flex flex-col items-center justify-center p-4 text-white overflow-hidden"
-      onClick={startGame}
-    >
-      <div className="fixed inset-0 pointer-events-none">
-        {bricks.map((brick) => (
-          <Brick key={brick.id} {...brick} />
-        ))}
-        {gameState !== 'initial' && (
-          <>
-            <div
-              ref={paddleRef}
-              className="absolute bg-white rounded-full"
-              style={{
-                left: paddleXRef.current,
-                bottom: 10,
-                width: PADDLE_WIDTH,
-                height: 6,
-                opacity: 0.8,
-              }}
-            />
-            <div
-              ref={ballRef}
-              className="absolute bg-white rounded-full"
-              style={{
-                width: BALL_SIZE,
-                height: BALL_SIZE,
-                opacity: 0.8,
-              }}
-            />
-          </>
+    <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 text-white overflow-x-hidden">
+      <div 
+        ref={containerRef}
+        className="min-h-screen flex flex-col items-center justify-center p-4 relative"
+      >
+        <div className="fixed inset-0 pointer-events-none">
+          {bricks.map((brick) => (
+            <Brick key={brick.id} {...brick} />
+          ))}
+          {gameState !== 'initial' && (
+            <>
+              <div
+                ref={paddleRef}
+                className="absolute bg-yellow-300 rounded-full"
+                style={{
+                  left: paddleXRef.current,
+                  bottom: 10,
+                  width: PADDLE_WIDTH,
+                  height: 6,
+                  opacity: 0.8,
+                }}
+              />
+              <div
+                ref={ballRef}
+                className="absolute bg-yellow-300 rounded-full"
+                style={{
+                  width: BALL_SIZE,
+                  height: BALL_SIZE,
+                  opacity: 0.8,
+                }}
+              />
+            </>
+          )}
+        </div>
+
+        <GameInfo gameState={gameState} score={score} />
+        <PersonalInfo />
+
+        {gameState === 'won' && <Confetti />}
+        {gameState === 'gameOver' && <RainingPoop />}
+
+        {showScrollIndicator && (
+          <motion.div 
+            className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+            initial={{ y: 0 }}
+            animate={{ y: [0, 10, 0] }}
+            transition={{ repeat: Infinity, duration: 1.5 }}
+          >
+            <ChevronDown size={48} className="text-white" />
+            <ChevronDown size={48} className="text-white -mt-6" />
+          </motion.div>
         )}
       </div>
 
-      <GameInfo gameState={gameState} score={score} />
-      <PersonalInfo />
+      <AboutMe />  {/* Use the new AboutMe component here */}
 
-      {gameState === 'won' && <Confetti />}
-      {gameState === 'gameOver' && <RainingPoop />}
+      {/* Full-screen overlay to capture clicks/taps for game interaction */}
+      <div 
+        className="fixed inset-0 z-50"
+        onClick={startGame}
+        style={{ pointerEvents: gameState === 'playing' ? 'none' : 'auto' }}
+      />
     </div>
   );
 };
