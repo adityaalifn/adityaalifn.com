@@ -2,8 +2,8 @@ import React from 'react';
 
 const AboutMe = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center p-8">
-      <div className="max-w-2xl w-full space-y-6">
+    <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-br from-blue-500 to-purple-500">
+      <div className="max-w-2xl w-full space-y-6 text-white">
         <h2 className="text-4xl font-bold mb-4">About Me</h2>
         <p className="text-lg">
           Hello! I'm Aditya Alif Nugraha, a Senior Software Engineer with over 5 years of experience in developing innovative and scalable solutions. My passion lies in creating efficient, user-friendly applications that solve real-world problems.

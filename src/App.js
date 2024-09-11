@@ -6,7 +6,7 @@ import Confetti from './components/Confetti';
 import RainingPoop from './components/RainingPoop';
 import GameInfo from './components/GameInfo';
 import PersonalInfo from './components/PersonalInfo';
-import AboutMe from './components/AboutMe';  // Import the new AboutMe component
+import AboutMe from './components/AboutMe';
 import { PADDLE_WIDTH, BALL_SIZE, BALL_SPEED } from './utils/gameConstants';
 import { initializeBricks, updateBallPosition } from './utils/gameLogic';
 
@@ -70,6 +70,20 @@ const App = () => {
       }
     };
 
+    // Add smooth scrolling behavior
+    const smoothScroll = (e) => {
+      e.preventDefault();
+      const href = e.currentTarget.getAttribute('href');
+      document.querySelector(href).scrollIntoView({
+        behavior: 'smooth'
+      });
+    };
+
+    const links = document.querySelectorAll('a[href^="#"]');
+    links.forEach(link => {
+      link.addEventListener('click', smoothScroll);
+    });
+
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('touchmove', handleTouchMove);
     window.addEventListener('scroll', handleScroll);
@@ -78,11 +92,14 @@ const App = () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('scroll', handleScroll);
+      links.forEach(link => {
+        link.removeEventListener('click', smoothScroll);
+      });
     };
   }, [gameState]);
 
   const startGame = useCallback(() => {
-    if (gameState === 'initial' || gameState === 'gameOver' || gameState === 'won') {
+    if (gameState !== 'playing') {
       setGameState('playing');
       setScore(0);
       setBricks(initializeBricks());
@@ -101,69 +118,86 @@ const App = () => {
     }
   }, [gameState]);
 
+  const handleGlobalClick = useCallback((e) => {
+    // Prevent starting the game when clicking on links or buttons
+    if (e.target.tagName.toLowerCase() !== 'a' && e.target.tagName.toLowerCase() !== 'button') {
+      startGame();
+    }
+  }, [startGame]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 text-white overflow-x-hidden">
-      <div 
-        ref={containerRef}
-        className="min-h-screen flex flex-col items-center justify-center p-4 relative"
-      >
-        <div className="fixed inset-0 pointer-events-none">
-          {bricks.map((brick) => (
-            <Brick key={brick.id} {...brick} />
-          ))}
-          {gameState !== 'initial' && (
-            <>
-              <div
-                ref={paddleRef}
-                className="absolute bg-yellow-300 rounded-full"
-                style={{
-                  left: paddleXRef.current,
-                  bottom: 10,
-                  width: PADDLE_WIDTH,
-                  height: 6,
-                  opacity: 0.8,
-                }}
-              />
-              <div
-                ref={ballRef}
-                className="absolute bg-yellow-300 rounded-full"
-                style={{
-                  width: BALL_SIZE,
-                  height: BALL_SIZE,
-                  opacity: 0.8,
-                }}
-              />
-            </>
+    <div className="h-screen overflow-y-scroll snap-y snap-mandatory" onClick={handleGlobalClick}>
+      <div className="h-screen snap-start bg-gradient-to-br from-purple-500 to-pink-500 text-white overflow-x-hidden relative">
+        <div 
+          ref={containerRef}
+          className="h-full flex flex-col items-center justify-center p-4 relative"
+        >
+          <div className="fixed inset-0 pointer-events-none">
+            {bricks.map((brick) => (
+              <Brick key={brick.id} {...brick} />
+            ))}
+            {gameState !== 'initial' && (
+              <>
+                <div
+                  ref={paddleRef}
+                  className="absolute bg-yellow-300 rounded-full"
+                  style={{
+                    left: paddleXRef.current,
+                    bottom: 10,
+                    width: PADDLE_WIDTH,
+                    height: 6,
+                    opacity: 0.8,
+                  }}
+                />
+                <div
+                  ref={ballRef}
+                  className="absolute bg-yellow-300 rounded-full"
+                  style={{
+                    width: BALL_SIZE,
+                    height: BALL_SIZE,
+                    opacity: 0.8,
+                  }}
+                />
+              </>
+            )}
+          </div>
+
+          <GameInfo gameState={gameState} score={score} />
+          <PersonalInfo />
+
+          {gameState === 'won' && <Confetti />}
+          {gameState === 'gameOver' && <RainingPoop />}
+
+          {/* Game instructions */}
+          {gameState !== 'playing' && (
+            <div className="mt-4 text-center z-10">
+              <p className="text-xl mb-2">
+                Click anywhere to {gameState === 'initial' ? 'start' : 'restart'}
+              </p>
+              <p className="text-sm opacity-75">
+                (Use mouse or touch to control the paddle)
+              </p>
+            </div>
           )}
         </div>
 
-        <GameInfo gameState={gameState} score={score} />
-        <PersonalInfo />
-
-        {gameState === 'won' && <Confetti />}
-        {gameState === 'gameOver' && <RainingPoop />}
-
         {showScrollIndicator && (
-          <motion.div 
-            className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+          <motion.a 
+            href="#about-me"
+            className="absolute bottom-8 left-1/2 transform -translate-x-1/2 cursor-pointer"
             initial={{ y: 0 }}
             animate={{ y: [0, 10, 0] }}
             transition={{ repeat: Infinity, duration: 1.5 }}
           >
             <ChevronDown size={48} className="text-white" />
             <ChevronDown size={48} className="text-white -mt-6" />
-          </motion.div>
+          </motion.a>
         )}
       </div>
 
-      <AboutMe />  {/* Use the new AboutMe component here */}
-
-      {/* Full-screen overlay to capture clicks/taps for game interaction */}
-      <div 
-        className="fixed inset-0 z-50"
-        onClick={startGame}
-        style={{ pointerEvents: gameState === 'playing' ? 'none' : 'auto' }}
-      />
+      <div id="about-me" className="h-screen snap-start">
+        <AboutMe />
+      </div>
     </div>
   );
 };
