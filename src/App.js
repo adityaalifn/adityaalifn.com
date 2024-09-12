@@ -70,11 +70,17 @@ const App = () => {
       }
     };
 
-    // Add smooth scrolling behavior
+    // Modified smooth scrolling behavior
     const smoothScroll = (e) => {
       e.preventDefault();
       const href = e.currentTarget.getAttribute('href');
-      document.querySelector(href).scrollIntoView({
+      const targetElement = document.querySelector(href);
+      const headerOffset = 0; // Adjust this value if you have a fixed header
+      const elementPosition = targetElement.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
         behavior: 'smooth'
       });
     };
@@ -183,7 +189,7 @@ const App = () => {
         )}
       </div>
 
-      <div id="about-me" className="h-screen snap-start">
+      <div id="about-me" className="min-h-screen snap-start overflow-y-auto">
         <AboutMe />
       </div>
     </div>
