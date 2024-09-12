@@ -42,14 +42,14 @@ const Academic = () => {
           <div>
             <h3 className="text-2xl font-semibold">Artificial Intelligence Laboratory</h3>
             <p className="text-base sm:text-lg text-justify">
-              Served as the researcher lead for cheating action detection using human pose estimation.
+              Led research on cheating action detection using human pose estimation.
             </p>
           </div>
           
           <div>
             <h3 className="text-2xl font-semibold">Teaching Experience</h3>
             <p className="text-base sm:text-lg text-justify">
-              Worked as an Assistant Lecturer for Artificial Intelligence and Machine Learning courses.
+              Served as an Assistant Lecturer for Artificial Intelligence and Machine Learning courses.
             </p>
           </div>
         </div>

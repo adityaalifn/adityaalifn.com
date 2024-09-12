@@ -14,26 +14,26 @@ const WorkExperiences = () => {
         
         <div className="space-y-4 sm:space-y-6">
           <h3 className="text-2xl font-semibold">Senior Software Engineer at Gojek</h3>
-          <p className="text-base sm:text-lg text-justify">
-            At Gojek, Southeast Asia's tech giant providing a wide range of services including transportation, food delivery, logistics, payment, and more, I've contributed to multiple teams: payment, driver platform, consumer platform, consumer growth, and cartography.
+          <p className="text-sm italic mb-2">June 2019 - Present</p>
+          <p className="text-base sm:text-lg text-justify mb-4">
+            Gojek is Southeast Asia's leading on-demand multi-service platform and digital payment technology group. It's a decacorn startup that provides a wide range of services including transportation, food delivery, logistics, payment, and more.
           </p>
           
-          <h4 className="text-xl font-semibold">Key Projects and Achievements:</h4>
+          <p className="text-base sm:text-lg text-justify">
+            At Gojek, I've contributed to multiple teams: payment, driver platform, consumer platform, consumer growth, and cartography.
+          </p>
+          
+          <h4 className="text-xl font-semibold mt-4">Key Projects and Achievements:</h4>
           <ul className="list-disc list-inside space-y-2 text-base sm:text-lg">
-            <li>Built payment microservices monitoring</li>
-            <li>Developed driver inventory transactions</li>
-            <li>Created automated driver online meetings</li>
-            <li>Contributed to global search engine development</li>
-            <li>Worked on recommender system, ads, vouchers and promotions</li>
-            <li>Handled the Gojek app core experience</li>
-            <li>Currently developing an internal routing engine capable of directions, live tracking, and map-matching</li>
+            <li>Developed an internal routing engine capable of directions, live tracking, and map-matching, potentially saving millions of dollars in annual costs</li>
+            <li>Generated hundred thousand of USD daily revenue by building an ad system</li>
+            <li>Built a seamless global search system with query and intent understanding, integrated with >10 products, serving 25 million searches</li>
+            <li>Developed a high throughput and availability home content recommendation system</li>
+            <li>Created an inventory sales and management system with complex discount, pricing EMI, and rule features</li>
+            <li>Built an automated platform for operation teams to conduct virtual meetings with millions of drivers</li>
           </ul>
           
-          <p className="text-base sm:text-lg text-justify">
-            The internal routing engine project aims to replace Google Maps API, potentially saving millions of dollars in annual costs.
-          </p>
-          
-          <p className="text-base sm:text-lg text-justify">
+          <p className="text-base sm:text-lg text-justify mt-4">
             Throughout my tenure, I've demonstrated strong problem-solving skills, adaptability to diverse roles, and the ability to effectively communicate complex technical concepts to both technical and non-technical stakeholders.
           </p>
         </div>
