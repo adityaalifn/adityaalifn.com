@@ -7,6 +7,9 @@ import RainingPoop from './components/RainingPoop';
 import GameInfo from './components/GameInfo';
 import PersonalInfo from './components/PersonalInfo';
 import AboutMe from './components/AboutMe';
+import WorkExperiences from './components/WorkExperiences';
+import InternshipExperiences from './components/InternshipExperiences';
+import Academic from './components/Academic';
 import { PADDLE_WIDTH, BALL_SIZE, BALL_SPEED } from './utils/gameConstants';
 import { initializeBricks, updateBallPosition } from './utils/gameLogic';
 
@@ -70,12 +73,11 @@ const App = () => {
       }
     };
 
-    // Modified smooth scrolling behavior
     const smoothScroll = (e) => {
       e.preventDefault();
       const href = e.currentTarget.getAttribute('href');
       const targetElement = document.querySelector(href);
-      const headerOffset = 0; // Adjust this value if you have a fixed header
+      const headerOffset = 0;
       const elementPosition = targetElement.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
@@ -125,7 +127,6 @@ const App = () => {
   }, [gameState]);
 
   const handleGlobalClick = useCallback((e) => {
-    // Prevent starting the game when clicking on links or buttons
     if (e.target.tagName.toLowerCase() !== 'a' && e.target.tagName.toLowerCase() !== 'button') {
       startGame();
     }
@@ -138,60 +139,74 @@ const App = () => {
           ref={containerRef}
           className="h-full flex flex-col items-center justify-center p-4 relative"
         >
-          <div className="fixed inset-0 pointer-events-none">
-            {bricks.map((brick) => (
-              <Brick key={brick.id} {...brick} />
-            ))}
-            {gameState !== 'initial' && (
-              <>
-                <div
-                  ref={paddleRef}
-                  className="absolute bg-yellow-300 rounded-full"
-                  style={{
-                    left: paddleXRef.current,
-                    bottom: 10,
-                    width: PADDLE_WIDTH,
-                    height: 6,
-                    opacity: 0.8,
-                  }}
-                />
-                <div
-                  ref={ballRef}
-                  className="absolute bg-yellow-300 rounded-full"
-                  style={{
-                    width: BALL_SIZE,
-                    height: BALL_SIZE,
-                    opacity: 0.8,
-                  }}
-                />
-              </>
-            )}
-          </div>
-
-          <GameInfo gameState={gameState} score={score} />
           <PersonalInfo />
 
-          {gameState === 'won' && <Confetti />}
-          {gameState === 'gameOver' && <RainingPoop />}
+          {showScrollIndicator && (
+            <motion.a 
+              href="#about-me"
+              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 cursor-pointer"
+              initial={{ y: 0 }}
+              animate={{ y: [0, 10, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
+              <ChevronDown size={48} className="text-white" />
+              <ChevronDown size={48} className="text-white -mt-6" />
+            </motion.a>
+          )}
         </div>
-
-        {showScrollIndicator && (
-          <motion.a 
-            href="#about-me"
-            className="absolute bottom-8 left-1/2 transform -translate-x-1/2 cursor-pointer"
-            initial={{ y: 0 }}
-            animate={{ y: [0, 10, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-          >
-            <ChevronDown size={48} className="text-white" />
-            <ChevronDown size={48} className="text-white -mt-6" />
-          </motion.a>
-        )}
       </div>
 
       <div id="about-me" className="min-h-screen snap-start overflow-y-auto">
         <AboutMe />
       </div>
+
+      <div id="work-experiences" className="min-h-screen snap-start overflow-y-auto">
+        <WorkExperiences />
+      </div>
+
+      <div id="internship-experiences" className="min-h-screen snap-start overflow-y-auto">
+        <InternshipExperiences />
+      </div>
+
+      <div id="academic" className="min-h-screen snap-start overflow-y-auto">
+        <Academic />
+      </div>
+
+      {/* Game elements (bricks, paddle, ball) */}
+      <div className="fixed inset-0 pointer-events-none">
+        {bricks.map((brick) => (
+          <Brick key={brick.id} {...brick} />
+        ))}
+        {gameState !== 'initial' && (
+          <>
+            <div
+              ref={paddleRef}
+              className="absolute bg-yellow-300 rounded-full"
+              style={{
+                left: paddleXRef.current,
+                bottom: 10,
+                width: PADDLE_WIDTH,
+                height: 6,
+                opacity: 0.8,
+              }}
+            />
+            <div
+              ref={ballRef}
+              className="absolute bg-yellow-300 rounded-full"
+              style={{
+                width: BALL_SIZE,
+                height: BALL_SIZE,
+                opacity: 0.8,
+              }}
+            />
+          </>
+        )}
+      </div>
+
+      <GameInfo gameState={gameState} score={score} />
+
+      {gameState === 'won' && <Confetti />}
+      {gameState === 'gameOver' && <RainingPoop />}
     </div>
   );
 };

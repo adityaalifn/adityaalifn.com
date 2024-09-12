@@ -19,7 +19,7 @@ const AboutMe = () => {
           </p>
           
           <p className="text-base sm:text-lg text-justify">
-            My work spans various domains including <strong>payment systems, driver platforms, consumer experiences, and cartography</strong>. I've developed key solutions such as <strong>payment microservices monitoring, driver inventory transactions, and automated driver online meetings</strong>. I've also worked and led development on a global search engine, a recommender system, ads, vouchers, and promotions, significantly impacting Gojek's experience and generating hundred thousand USD revenue daily.
+            My work spans various domains including <strong>payment systems, driver platforms, consumer experiences, and cartography</strong>. I've developed key solutions such as <strong>payment microservices monitoring, driver inventory transactions, and automated driver online meetings</strong>. I've also worked and <strong>led development on a global search engine, a recommender system, ads, vouchers, and promotions, significantly impacting Gojek's experience and generating hundred thousand USD revenue daily.</strong>
           </p>
           
           <p className="text-base sm:text-lg text-justify">
